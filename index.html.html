@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador Combinado Familiar - Federación Patronal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom Tailwind Configuration for FedPat Colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fedpat: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            dark: '#003366',
+                            accent: '#00a8e8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Smooth transition for step wizard */
+        .step-content {
+            transition: all 0.3s ease-in-out;
+        }
+        .form-input-error {
+            border-color: #ef4444 !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- Header Corporate Top Bar -->
+    <header class="bg-fedpat-dark text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-1.5 rounded-lg shadow">
+                    <!-- FedPat Emblem placeholder / Shield SVG -->
+                    <svg class="w-7 h-7 text-fedpat-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Federación Patronal</h1>
+                    <p class="text-xs text-slate-300">Asesor Producer - Combinado Familiar (SELF)</p>
+                </div>
+            </div>
+            <span class="bg-fedpat-accent/20 text-fedpat-accent text-xs px-2.5 py-1 rounded-full font-medium border border-fedpat-accent/30 hidden sm:inline-block">
+                Portal SELF Ready
+            </span>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto w-full px-3 py-4 sm:p-6 flex-grow">
+        
+        <!-- Wizard Card Container -->
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            
+            <!-- Progress Bar Section -->
+            <div class="bg-slate-50 border-b border-slate-200 p-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span id="step-badge" class="text-xs font-semibold text-fedpat-700 bg-fedpat-100 px-2.5 py-1 rounded-md uppercase tracking-wider">Paso 1 de 5</span>
+                    <span id="step-title" class="text-sm font-medium text-slate-600">Datos del Asegurado</span>
+                </div>
+                <!-- Progress Line -->
+                <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-fedpat-500 h-2.5 rounded-full transition-all duration-300" style="width: 20%;"></div>
+                </div>
+                <!-- Mini step indicator icons for Desktop -->
+                <div class="hidden md:flex justify-between mt-3 text-xs font-medium text-slate-400">
+                    <span class="step-indicator active-indicator font-semibold text-fedpat-700">1. Asegurado</span>
+                    <span class="step-indicator">2. Vivienda / Riesgo</span>
+                    <span class="step-indicator">3. Medidas Seguridad</span>
+                    <span class="step-indicator">4. Coberturas</span>
+                    <span class="step-indicator">5. Resumen SELF</span>
+                </div>
+            </div>
+
+            <!-- Form Body -->
+            <form id="wizard-form" onsubmit="return false;" class="p-4 sm:p-6 space-y-6">
+
+                <!-- ================= PASO 1: DATOS DEL ASEGURADO ================= -->
+                <div id="step-1" class="step-content space-y-4">
+                    <div class="border-b pb-2 mb-4">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <i data-lucide="user" class="text-fedpat-500"></i> Datos del Solicitante / Tomador
+                        </h2>
+                        <p class="text-xs text-slate-500">Ingresá los datos identificatorios del cliente para el encabezado de cotización.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Tipo Personeria -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Tipo de Persona *</label>
+                            <select id="tipoPersona" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500 focus:outline-none">
+                                <option value="Persona Física" selected>Persona Física</option>
+                                <option value="Persona Jurídica">Persona Jurídica</option>
+                            </select>
+                        </div>
+
+                        <!-- Sexo -->
+                        <div id="sexo-container">
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Sexo *</label>
+                            <div class="flex gap-4 pt-2">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="sexo" value="M" checked class="w-4 h-4 text-fedpat-600 focus:ring-fedpat-500">
+                                    <span class="ml-2 text-sm text-slate-700">Masculino (M)</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="sexo" value="F" class="w-4 h-4 text-fedpat-600 focus:ring-fedpat-500">
+                                    <span class="ml-2 text-sm text-slate-700">Femenino (F)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Tipo Documento -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Tipo Documento *</label>
+                            <select id="tipoDoc" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500 focus:outline-none">
+                                <option value="DNI" selected>DNI</option>
+                                <option value="CUIT">CUIT</option>
+                                <option value="CUIL">CUIL</option>
+                                <option value="Pasaporte">Pasaporte</option>
+                            </select>
+                        </div>
+
+                        <!-- Nro Documento -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">N° de Documento / CUIT *</label>
+                            <input type="number" id="numDoc" placeholder="Ej: 35123456" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500 focus:outline-none" required>
+                            <span class="text-xs text-red-500 hidden" id="err-numDoc">Por favor ingresá un documento válido.</span>
+                        </div>
+
+                        <!-- Provincia de Riesgo -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Provincia de Riesgo *</label>
+                            <select id="provinciaRiesgo" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500 focus:outline-none">
+                                <option value="Buenos Aires" selected>Buenos Aires</option>
+                                <option value="Ciudad Autónoma de Buenos Aires">CABA</option>
+                                <option value="Santa Fe">Santa Fe</option>
+                                <option value="Córdoba">Córdoba</option>
+                                <option value="Mendoza">Mendoza</option>
+                                <option value="Entre Ríos">Entre Ríos</option>
+                                <option value="Tucumán">Tucumán</option>
+                                <option value="Neuquén">Neuquén</option>
+                                <option value="Río Negro">Río Negro</option>
+                                <option value="Salta">Salta</option>
+                                <option value="Chaco">Chaco</option>
+                                <option value="Corrientes">Corrientes</option>
+                                <option value="Misiones">Misiones</option>
+                                <option value="San Luis">San Luis</option>
+                                <option value="San Juan">San Juan</option>
+                                <option value="Jujuy">Jujuy</option>
+                                <option value="Santiago del Estero">Santiago del Estero</option>
+                                <option value="Formosa">Formosa</option>
+                                <option value="La Pampa">La Pampa</option>
+                                <option value="Catamarca">Catamarca</option>
+                                <option value="La Rioja">La Rioja</option>
+                                <option value="Chubut">Chubut</option>
+                                <option value="Santa Cruz">Santa Cruz</option>
+                                <option value="Tierra del Fuego">Tierra del Fuego</option>
+                            </select>
+                        </div>
+
+                        <!-- Localidad / CP -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Localidad del Riesgo y C.P. *</label>
+                            <input type="text" id="localidad" placeholder="Ej: La Plata (CP 1900)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500 focus:outline-none" required>
+                            <span class="text-xs text-red-500 hidden" id="err-localidad">Ingresá la localidad.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= PASO 2: VIVIENDA Y RIESGO ================= -->
+                <div id="step-2" class="step-content space-y-4 hidden">
+                    <div class="border-b pb-2 mb-4">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <i data-lucide="home" class="text-fedpat-500"></i> Características de la Vivienda / Riesgo
+                        </h2>
+                        <p class="text-xs text-slate-500">Definí los metros y características constructivas (Campos clave del cotizador SELF).</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Régimen Ocupante -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Régimen de Ocupación *</label>
+                            <select id="regimenOcupacion" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500 focus:outline-none">
+                                <option value="Propietario" selected>Propietario</option>
+                                <option value="Inquilino / Locatario">Inquilino / Locatario</option>
+                            </select>
+                        </div>
+
+                        <!-- Tipo de Vivienda -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Tipo de Vivienda *</label>
+                            <select id="tipoVivienda" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500 focus:outline-none">
+                                <option value="Casa Particular">Casa Particular</option>
+                                <option value="Departamento">Departamento</option>
+                                <option value="Casa en Barrio Cerrado / Country">Casa en Barrio Cerrado / Country</option>
+                                <option value="Casa Quinta">Casa Quinta</option>
+                            </select>
+                        </div>
+
+                        <!-- Uso de la Vivienda -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Uso de la Vivienda *</label>
+                            <select id="usoVivienda" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500 focus:outline-none">
+                                <option value="HABITACION PERMANENTE" selected>Habitación Permanente</option>
+                                <option value="VIVIENDA TRANSITORIA / VACACIONAL">Vivienda Transitoria / Vacacional</option>
+                            </select>
+                        </div>
+
+                        <!-- Metros Cubiertos (REQUERIDO) -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Metros Cubiertos (Aprox. m²) *</label>
+                            <div class="relative">
+                                <input type="number" id="metrosCubiertos" placeholder="Ej: 120" min="10" max="5000" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500 focus:outline-none" required>
+                                <span class="absolute right-3 top-2.5 text-xs text-slate-400 font-semibold">m²</span>
+                            </div>
+                            <span class="text-xs text-red-500 hidden" id="err-metros">Los metros cubiertos son requeridos.</span>
+                        </div>
+
+                        <!-- Tipo de Construcción Exterior -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Construcción Exterior *</label>
+                            <select id="construccionExterior" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500 focus:outline-none">
+                                <option value="Material / Mampostería" selected>Material / Mampostería</option>
+                                <option value="Madera">Madera</option>
+                                <option value="Mixta (Material y Madera)">Mixta (Material y Madera)</option>
+                                <option value="Otros Materiales">Otros Materiales</option>
+                            </select>
+                        </div>
+
+                        <!-- Tipo de Techo -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Tipo de Techo *</label>
+                            <select id="tipoTecho" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500 focus:outline-none">
+                                <option value="Losa / Hormigón Armado" selected>Losa / Hormigón Armado</option>
+                                <option value="Teja con estructura de Madera">Teja con estructura de Madera</option>
+                                <option value="Chapa con Cielorraso">Chapa con Cielorraso</option>
+                                <option value="Paja / Caña / Madera Seca">Paja / Caña / Madera Seca</option>
+                            </select>
+                        </div>
+
+                        <!-- Linderos -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Linderos *</label>
+                            <select id="linderos" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500 focus:outline-none">
+                                <option value="Edificación Normal / Casas Habitadas" selected>Edificación Normal / Casas Habitadas</option>
+                                <option value="Terreno Baldío">Terreno Baldío</option>
+                                <option value="Obra en Construcción">Obra en Construcción</option>
+                                <option value="Edificio Abandonado">Edificio Abandonado</option>
+                            </select>
+                        </div>
+
+                        <!-- En Comunicación con Comercio -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">¿Comunica con Comercio? *</label>
+                            <select id="comunicacionComercio" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500 focus:outline-none">
+                                <option value="NO" selected>NO</option>
+                                <option value="SI">SI</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= PASO 3: MEDIDAS DE SEGURIDAD ================= -->
+                <div id="step-3" class="step-content space-y-4 hidden">
+                    <div class="border-b pb-2 mb-4">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <i data-lucide="shield-check" class="text-fedpat-500"></i> Medidas de Seguridad y Protecciones
+                        </h2>
+                        <p class="text-xs text-slate-500">Estas respuestas habilitan bonificaciones e inspecciones previas en SELF.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Disyuntor -->
+                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                            <label class="block text-sm font-semibold text-slate-800 mb-2">¿Posee Disyuntor Diferencial?</label>
+                            <div class="flex gap-4">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="disyuntor" value="SI" checked class="w-4 h-4 text-fedpat-600 focus:ring-fedpat-500">
+                                    <span class="ml-2 text-sm text-slate-700">SI</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="disyuntor" value="NO" class="w-4 h-4 text-fedpat-600 focus:ring-fedpat-500">
+                                    <span class="ml-2 text-sm text-slate-700">NO</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Puerta Blindada -->
+                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                            <label class="block text-sm font-semibold text-slate-800 mb-2">¿Posee Puerta Blindada?</label>
+                            <div class="flex gap-4">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="puertaBlindada" value="NO" checked class="w-4 h-4 text-fedpat-600 focus:ring-fedpat-500">
+                                    <span class="ml-2 text-sm text-slate-700">NO</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="puertaBlindada" value="SI" class="w-4 h-4 text-fedpat-600 focus:ring-fedpat-500">
+                                    <span class="ml-2 text-sm text-slate-700">SI</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Alarma -->
+                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                            <label class="block text-sm font-semibold text-slate-800 mb-2">Alarma de Seguridad</label>
+                            <select id="alarma" class="w-full p-2 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-fedpat-500">
+                                <option value="No posee" selected>No posee</option>
+                                <option value="Alarma Sonora Local">Solo Sonora Local</option>
+                                <option value="Alarma Monitoreada 24hs">Monitoreada (Prosegur/ADT/etc.)</option>
+                            </select>
+                        </div>
+
+                        <!-- Vigilancia Permanente -->
+                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                            <label class="block text-sm font-semibold text-slate-800 mb-2">¿Vigilancia Permanente / Garita?</label>
+                            <div class="flex gap-4">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="vigilancia" value="NO" checked class="w-4 h-4 text-fedpat-600 focus:ring-fedpat-500">
+                                    <span class="ml-2 text-sm text-slate-700">NO</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="vigilancia" value="SI" class="w-4 h-4 text-fedpat-600 focus:ring-fedpat-500">
+                                    <span class="ml-2 text-sm text-slate-700">SI</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= PASO 4: SUMAS ASEGURADAS Y COBERTURAS ================= -->
+                <div id="step-4" class="step-content space-y-4 hidden">
+                    <div class="border-b pb-2 mb-4">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <i data-lucide="dollar-sign" class="text-fedpat-500"></i> Sumas Aseguradas y Coberturas
+                        </h2>
+                        <p class="text-xs text-slate-500">Ingresá los montos sugeridos o deseados por el asegurado en pesos ($).</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Incendio Edificio -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Incendio Edificio ($) *</label>
+                            <input type="number" id="sumaEdificio" placeholder="Ej: 45000000" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500" required>
+                            <span class="text-xs text-slate-400">Edificio a primer riesgo / ricostrucción</span>
+                        </div>
+
+                        <!-- Incendio Contenido General -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Incendio Contenido General ($) *</label>
+                            <input type="number" id="sumaContenido" placeholder="Ej: 15000000" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500" required>
+                        </div>
+
+                        <!-- Robo y/o Hurto -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Robo y/o Hurto Contenido ($) *</label>
+                            <input type="number" id="sumaRobo" placeholder="Ej: 4000000" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500" required>
+                        </div>
+
+                        <!-- Electrodomésticos / TV / PC -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Todo Riesgo TV / Electro en Domicilio ($)</label>
+                            <input type="number" id="sumaElectro" placeholder="Ej: 1500000" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500">
+                        </div>
+
+                        <!-- Cristales -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Cristales ($)</label>
+                            <input type="number" id="sumaCristales" placeholder="Ej: 300000" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500">
+                        </div>
+
+                        <!-- Daños por Agua -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Daños por Agua Instalaciones ($)</label>
+                            <input type="number" id="sumaAgua" placeholder="Ej: 500000" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-fedpat-500">
+                        </div>
+                    </div>
+
+                    <!-- Módulo Dinámico para Bienes Específicos (Notebook, Cámaras, etc.) -->
+                    <div class="mt-6 pt-4 border-t border-slate-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-800">Objetos Específicos / Todo Riesgo Arg. y Mundo</h3>
+                                <p class="text-xs text-slate-500">Notebooks, Cámaras, Bicicletas, Equipos de Golf fuera del hogar.</p>
+                            </div>
+                            <button type="button" onclick="agregarBienEspecifico()" class="text-xs bg-fedpat-100 hover:bg-fedpat-200 text-fedpat-700 px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1 transition">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar Bien
+                            </button>
+                        </div>
+
+                        <div id="bienes-container" class="space-y-2.5">
+                            <!-- Filas dinámicas de bienes se insertarán aquí -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= PASO 5: RESUMEN Y COPIA SELF ================= -->
+                <div id="step-5" class="step-content space-y-4 hidden">
+                    <div class="border-b pb-2 mb-4">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <i data-lucide="file-text" class="text-emerald-600"></i> Resumen Estructurado para Cotizador SELF
+                        </h2>
+                        <p class="text-xs text-slate-500">¡Listo! Revisá los datos y copiálos de un tirón para pegarlos o cotizar.</p>
+                    </div>
+
+                    <!-- Text Area Preview Output -->
+                    <div class="relative">
+                        <textarea id="resumenTexto" rows="12" readonly class="w-full p-3.5 bg-slate-900 text-emerald-400 font-mono text-xs rounded-xl shadow-inner border border-slate-800 focus:outline-none resize-none selection:bg-emerald-800"></textarea>
+                    </div>
+
+                    <!-- Action Buttons for Output -->
+                    <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                        <button type="button" onclick="copiarAlPortapapeles()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition active:scale-95">
+                            <i data-lucide="copy" class="w-5 h-5"></i>
+                            <span id="btn-copy-text">Copiar Resumen para Cotizar</span>
+                        </button>
+                        <button type="button" onclick="compartirWhatsApp()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition active:scale-95">
+                            <i data-lucide="message-square" class="w-5 h-5"></i>
+                            <span>Enviar por WhatsApp</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Wizard Navigation Control Buttons -->
+                <div class="flex justify-between items-center pt-6 border-t border-slate-200">
+                    <button type="button" id="btn-prev" onclick="cambiarPaso(-1)" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl text-sm transition flex items-center gap-1.5 opacity-50 cursor-not-allowed" disabled>
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i> Anterior
+                    </button>
+
+                    <button type="button" id="btn-next" onclick="cambiarPaso(1)" class="px-6 py-2.5 bg-fedpat-600 hover:bg-fedpat-700 text-white font-semibold rounded-xl text-sm shadow-md transition flex items-center gap-1.5 active:scale-95">
+                        Siguiente <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+    <!-- Notification Toast Modal -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-2xl transition-opacity duration-300 opacity-0 pointer-events-none flex items-center gap-2 z-50">
+        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+        <span id="toast-msg">Texto copiado exitosamente</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-slate-500">
+        Herramienta de Auxilio para PAS - Federación Patronal Seguros S.A.
+    </footer>
+
+    <script>
+        // Application State
+        let currentStep = 1;
+        const totalSteps = 5;
+        let bienesEspecificos = [];
+
+        // Step Titles Map
+        const stepTitles = {
+            1: "Datos del Solicitante / Tomador",
+            2: "Uso y Estructura de la Vivienda",
+            3: "Medidas de Seguridad e Inspección",
+            4: "Sumas Aseguradas y Coberturas",
+            5: "Resumen Final para Copiar en SELF"
+        };
+
+        // Initialize icons on load
+        window.onload = function() {
+            lucide.createIcons();
+            // Default first dynamic item
+            agregarBienEspecifico("Notebook Lenovo ThinkPad", "1200000");
+        };
+
+        // Navigation Controller
+        function cambiarPaso(direccion) {
+            // If forward, run validations
+            if (direccion === 1) {
+                if (!validarPasoActual(currentStep)) {
+                    return;
+                }
+            }
+
+            const pasoAnterior = currentStep;
+            currentStep += direccion;
+
+            if (currentStep < 1) currentStep = 1;
+            if (currentStep > totalSteps) currentStep = totalSteps;
+
+            // Render view changes
+            document.getElementById(`step-${pasoAnterior}`).classList.add('hidden');
+            document.getElementById(`step-${currentStep}`).classList.remove('hidden');
+
+            // Update Progress UI
+            actualizarUI();
+
+            // If entering summary step, generate summary text
+            if (currentStep === 5) {
+                generarResumenTexto();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Validate Step inputs before proceeding
+        function validarPasoActual(step) {
+            let valido = true;
+
+            if (step === 1) {
+                const doc = document.getElementById('numDoc');
+                const loc = document.getElementById('localidad');
+                
+                if (!doc.value.trim() || doc.value.length < 6) {
+                    marcarError(doc, 'err-numDoc', true);
+                    valido = false;
+                } else {
+                    marcarError(doc, 'err-numDoc', false);
+                }
+
+                if (!loc.value.trim()) {
+                    marcarError(loc, 'err-localidad', true);
+                    valido = false;
+                } else {
+                    marcarError(loc, 'err-localidad', false);
+                }
+            }
+
+            if (step === 2) {
+                const metros = document.getElementById('metrosCubiertos');
+                if (!metros.value || parseFloat(metros.value) <= 0) {
+                    marcarError(metros, 'err-metros', true);
+                    valido = false;
+                } else {
+                    marcarError(metros, 'err-metros', false);
+                }
+            }
+
+            return valido;
+        }
+
+        function marcarError(element, errorId, tieneError) {
+            if (tieneError) {
+                element.classList.add('form-input-error');
+                document.getElementById(errorId)?.classList.remove('hidden');
+            } else {
+                element.classList.remove('form-input-error');
+                document.getElementById(errorId)?.classList.add('hidden');
+            }
+        }
+
+        // Update Wizard UI states
+        function actualizarUI() {
+            // Update step text and badge
+            document.getElementById('step-badge').innerText = `Paso ${currentStep} de ${totalSteps}`;
+            document.getElementById('step-title').innerText = stepTitles[currentStep];
+
+            // Progress bar length
+            const porcentaje = (currentStep / totalSteps) * 100;
+            document.getElementById('progress-bar').style.width = `${porcentaje}%`;
+
+            // Buttons state
+            const btnPrev = document.getElementById('btn-prev');
+            const btnNext = document.getElementById('btn-next');
+
+            if (currentStep === 1) {
+                btnPrev.disabled = true;
+                btnPrev.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnPrev.disabled = false;
+                btnPrev.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            if (currentStep === totalSteps) {
+                btnNext.classList.add('hidden');
+            } else {
+                btnNext.classList.remove('hidden');
+            }
+
+            // Desktop Indicator Highlights
+            const indicators = document.querySelectorAll('.step-indicator');
+            indicators.forEach((ind, index) => {
+                if (index + 1 === currentStep) {
+                    ind.className = 'step-indicator font-semibold text-fedpat-700';
+                } else if (index + 1 < currentStep) {
+                    ind.className = 'step-indicator text-emerald-600 font-medium';
+                } else {
+                    ind.className = 'step-indicator text-slate-400';
+                }
+            });
+        }
+
+        // Add dynamic specific item (Notebooks, Cameras, Golf, etc.)
+        function agregarBienEspecifico(nombreDefault = '', montoDefault = '') {
+            const container = document.getElementById('bienes-container');
+            const id = Date.now();
+
+            const div = document.createElement('div');
+            div.id = `bien-${id}`;
+            div.className = "flex gap-2 items-center bg-slate-50 p-2 rounded-lg border border-slate-200";
+
+            div.innerHTML = `
+                <input type="text" placeholder="Detalle (Marca, Modelo, Característica)" value="${nombreDefault}" class="bien-nombre flex-grow text-xs p-2 bg-white border border-slate-300 rounded focus:outline-none">
+                <input type="number" placeholder="Suma ($)" value="${montoDefault}" class="bien-monto w-28 text-xs p-2 bg-white border border-slate-300 rounded focus:outline-none">
+                <button type="button" onclick="eliminarBienEspecifico('${id}')" class="text-slate-400 hover:text-red-500 p-1">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            `;
+
+            container.appendChild(div);
+            lucide.createIcons();
+        }
+
+        function eliminarBienEspecifico(id) {
+            const elem = document.getElementById(`bien-${id}`);
+            if (elem) elem.remove();
+        }
+
+        // Generate Plain Text Formatted output for SELF portal
+        function generarResumenTexto() {
+            const tipoPersona = document.getElementById('tipoPersona').value;
+            const sexo = document.querySelector('input[name="sexo"]:checked')?.value || 'M';
+            const tipoDoc = document.getElementById('tipoDoc').value;
+            const numDoc = document.getElementById('numDoc').value;
+            const provincia = document.getElementById('provinciaRiesgo').value;
+            const localidad = document.getElementById('localidad').value;
+
+            const regimen = document.getElementById('regimenOcupacion').value;
+            const tipoVivienda = document.getElementById('tipoVivienda').value;
+            const usoVivienda = document.getElementById('usoVivienda').value;
+            const metros = document.getElementById('metrosCubiertos').value;
+            const constExt = document.getElementById('construccionExterior').value;
+            const tipoTecho = document.getElementById('tipoTecho').value;
+            const linderos = document.getElementById('linderos').value;
+            const comercio = document.getElementById('comunicacionComercio').value;
+
+            const disyuntor = document.querySelector('input[name="disyuntor"]:checked')?.value || 'SI';
+            const puertaBlindada = document.querySelector('input[name="puertaBlindada"]:checked')?.value || 'NO';
+            const alarma = document.getElementById('alarma').value;
+            const vigilancia = document.querySelector('input[name="vigilancia"]:checked')?.value || 'NO';
+
+            const sumaEdificio = document.getElementById('sumaEdificio').value || '0';
+            const sumaContenido = document.getElementById('sumaContenido').value || '0';
+            const sumaRobo = document.getElementById('sumaRobo').value || '0';
+            const sumaElectro = document.getElementById('sumaElectro').value || '0';
+            const sumaCristales = document.getElementById('sumaCristales').value || '0';
+            const sumaAgua = document.getElementById('sumaAgua').value || '0';
+
+            // Fetch dynamic goods
+            let textoBienes = "";
+            const bienesFilas = document.querySelectorAll('#bienes-container > div');
+            bienesFilas.forEach((fila, idx) => {
+                const nombre = fila.querySelector('.bien-nombre').value;
+                const monto = fila.querySelector('.bien-monto').value;
+                if (nombre && monto) {
+                    textoBienes += `  - Bien #${idx+1}: ${nombre} -> $${Number(monto).toLocaleString('es-AR')}\n`;
+                }
+            });
+
+            const resumenFormatted = 
+`==============================================
+COTIZACIÓN COMBINADO FAMILIAR - FEDERACIÓN PATRONAL
+==============================================
+
+[ DATOS DEL ASEGURADO ]
+• Tipo Persona: ${tipoPersona}
+• Documento: ${tipoDoc} ${numDoc}
+• Sexo: ${sexo}
+• Provincia de Riesgo: ${provincia}
+• Localidad del Riesgo: ${localidad}
+
+[ RIESGO / VIVIENDA ]
+• Régimen Ocupación: ${regimen}
+• Tipo Vivienda: ${tipoVivienda}
+• Uso Vivienda: ${usoVivienda}
+• Metros Cubiertos: ${metros} m²
+• Construcción Exterior: ${constExt}
+• Tipo Techo: ${tipoTecho}
+• Linderos: ${linderos}
+• Comunica con Comercio: ${comercio}
+
+[ MEDIDAS DE SEGURIDAD ]
+• Disyuntor Diferencial: ${disyuntor}
+• Puerta Blindada: ${puertaBlindada}
+• Alarma: ${alarma}
+• Vigilancia Permanente: ${vigilancia}
+
+[ SUMAS ASEGURADAS SOLICITADAS ]
+• Incendio Edificio: $${Number(sumaEdificio).toLocaleString('es-AR')}
+• Incendio Contenido General: $${Number(sumaContenido).toLocaleString('es-AR')}
+• Robo y/o Hurto Contenido: $${Number(sumaRobo).toLocaleString('es-AR')}
+• Todo Riesgo TV / Electro: $${Number(sumaElectro).toLocaleString('es-AR')}
+• Cristales: $${Number(sumaCristales).toLocaleString('es-AR')}
+• Daños por Agua: $${Number(sumaAgua).toLocaleString('es-AR')}
+
+${textoBienes ? '[ TODO RIESGO ARGENTINA Y EL MUNDO / BIENES ]\n' + textoBienes : ''}
+==============================================`;
+
+            document.getElementById('resumenTexto').value = resumenFormatted;
+        }
+
+        // Copy to clipboard cross-browser helper
+        function copiarAlPortapapeles() {
+            const textarea = document.getElementById('resumenTexto');
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                mostrarToast('¡Resumen copiado! Listo para pegar en SELF');
+            } catch (err) {
+                mostrarToast('Error al copiar automáticamente');
+            }
+        }
+
+        // Share via WhatsApp
+        function compartirWhatsApp() {
+            const texto = encodeURIComponent(document.getElementById('resumenTexto').value);
+            window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
+        }
+
+        // Display Notification Toast
+        function mostrarToast(mensaje) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = mensaje;
+            
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
